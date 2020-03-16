@@ -31,7 +31,7 @@
 #define __SYS_CONFIG_H_
 
 /* Build for 177x/8x chip family */
-#define CHIP_LPC177X_8X
+//#define CHIP_LPC177X_8X
 
 /* Enable DMA in SDC driver */
 #define SDC_DMA_ENABLE
