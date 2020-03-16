@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <LPC17xx.h>
+#include <chip.h>
 #include <bit_manipulation.h>
 
 #include <Arduino.h>

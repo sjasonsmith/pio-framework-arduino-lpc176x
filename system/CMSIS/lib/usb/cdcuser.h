@@ -18,9 +18,6 @@
 
 #ifndef __CDCUSER_H__
 #define __CDCUSER_H__
-extern "C" {
-#include <debug_frmwrk.h>
-}
 
 /* CDC Data In/Out Endpoint Address */
 #define CDC_DEP_IN       0x82

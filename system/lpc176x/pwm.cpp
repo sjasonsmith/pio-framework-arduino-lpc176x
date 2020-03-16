@@ -14,8 +14,7 @@
  *
  */
 #include <array>
-#include <lpc17xx_pinsel.h>
-#include <lpc17xx_clkpwr.h>
+#include <chip.h>
 #include <time.h>
 #include <const_functions.h>
 #include <pinmapping.h>

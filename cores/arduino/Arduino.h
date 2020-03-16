@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <LPC17xx.h>
+#include <chip.h>
 
 #include <binary.h>
 

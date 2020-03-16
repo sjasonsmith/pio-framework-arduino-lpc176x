@@ -1,4 +1,4 @@
-#include <LPC17xx.h>
+#include <chip.h>
 
 #include <bit_manipulation.h>
 #include <pinmapping.h>

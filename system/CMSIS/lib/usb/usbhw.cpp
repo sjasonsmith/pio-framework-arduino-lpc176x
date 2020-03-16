@@ -20,9 +20,7 @@
  *          V1.00 Initial Version
  *----------------------------------------------------------------------------*/
 extern "C" {
-#include "LPC17xx.h"                        /* LPC17xx definitions */
-#include <debug_frmwrk.h>
-#include <lpc17xx_iap.h>
+#include <chip.h>
 }
 
 #include "usb.h"

@@ -145,6 +145,8 @@ void Chip_SetupIrcClocking(void);
 #include "chip_lpc407x_8x.h"
 #endif
 
+#include "debug_frmwrk.h"
+
 #ifdef __cplusplus
 }
 #endif

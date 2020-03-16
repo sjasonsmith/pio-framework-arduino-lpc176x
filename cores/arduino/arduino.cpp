@@ -21,7 +21,7 @@
  */
 #include <cstdio>
 
-#include <lpc17xx_pinsel.h>
+#include <chip.h>
 
 #include <time.h>
 #include <const_functions.h>

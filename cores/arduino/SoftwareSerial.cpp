@@ -23,9 +23,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#include <lpc17xx_rit.h>
-#include <lpc17xx_clkpwr.h>
-#include <debug_frmwrk.h>
+#include <chip.h>
 
 #include <gpio.h>
 #include <time.h>

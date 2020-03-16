@@ -21,9 +21,7 @@ extern "C" {
   #include <stdlib.h>
   #include <string.h>
   #include <inttypes.h>
-  #include <lpc17xx_i2c.h>
-  #include <lpc17xx_pinsel.h>
-  #include <lpc17xx_libcfg_default.h>
+  #include <chip.h>
 }
 
 #include <Wire.h>

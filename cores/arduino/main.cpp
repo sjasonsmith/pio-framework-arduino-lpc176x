@@ -1,7 +1,7 @@
 #include <cstdint>
 
 extern "C" {
-  #include <LPC17xx.h>
+  #include <chip.h>
 }
 
 #include <pinmapping.h>

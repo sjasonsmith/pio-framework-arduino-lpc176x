@@ -11,9 +11,7 @@
 /
 /-------------------------------------------------------------------------*/
 
-#include "lpc17xx_ssp.h"
-#include "lpc17xx_clkpwr.h"
-#include "LPC176x.h"
+#include "chip.h"
 
 #define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
 

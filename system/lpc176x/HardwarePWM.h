@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include <lpc17xx_clkpwr.h>
-#include <lpc17xx_pwm.h>
+#include <chip.h>
 #include <gpio.h>
 #include <bit_manipulation.h>
 #include <registers.h>

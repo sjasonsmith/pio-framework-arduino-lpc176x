@@ -24,8 +24,7 @@
 
 #include <string.h>
 #include <stdint.h>
-#include <lpc17xx_nvic.h>
-#include "LPC17xx.h"
+#include <chip.h>
 
 
 /** @addtogroup LPC17xx_System

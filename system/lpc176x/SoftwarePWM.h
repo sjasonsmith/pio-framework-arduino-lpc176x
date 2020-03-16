@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <lpc17xx_clkpwr.h>
+#include <chip.h>
 #include <const_functions.h>
 #include <pinmapping.h>
 #include <registers.h>

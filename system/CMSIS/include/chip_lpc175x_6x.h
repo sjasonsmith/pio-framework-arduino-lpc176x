@@ -182,6 +182,7 @@ extern "C" {
 #include "fmc_17xx_40xx.h"
 #include "romapi_17xx_40xx.h"
 /* FIXME : PWM drivers */
+#include "lpc17xx_pwm.h" // Old version
 
 #ifdef __cplusplus
 }

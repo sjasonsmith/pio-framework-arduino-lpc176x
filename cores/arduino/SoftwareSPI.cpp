@@ -41,7 +41,7 @@
  */
 
 #include <algorithm>
-#include <LPC17xx.h>
+#include <chip.h>
 #include <gpio.h>
 
 #include <Arduino.h>

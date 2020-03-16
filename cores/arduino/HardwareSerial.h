@@ -29,8 +29,7 @@
 #include <Stream.h>
 
 extern "C" {
-  #include <lpc17xx_uart.h>
-  #include "lpc17xx_pinsel.h"
+  #include <chip.h>
 }
 
 #if !defined(SERIAL_TX_BUFFER_SIZE)

@@ -17,9 +17,7 @@
  *---------------------------------------------------------------------------*/
 
 extern "C" {
-  #include <LPC17xx.h>
-  #include <lpc17xx_wdt.h>
-  #include <lpc_types.h>
+  #include <chip.h>
 }
 
 #include <usb/usb.h>

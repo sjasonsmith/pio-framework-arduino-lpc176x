@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LPC17xx.h>
+#include <chip.h>
 
 #include <cstdint>
 #include <pinmapping.h>

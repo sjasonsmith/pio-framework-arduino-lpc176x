@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LPC17xx.h>
+#include <chip.h>
 
 namespace LPC176x {
 

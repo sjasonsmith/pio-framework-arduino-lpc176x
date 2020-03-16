@@ -35,8 +35,7 @@
  */
 
 /* Includes ------------------------------------------------------------------- */
-#include "lpc17xx_pwm.h"
-#include "lpc17xx_clkpwr.h"
+#include "chip.h"
 
 /* If this source file built with example, the LPC17xx FW library configuration
  * file in each example directory ("lpc17xx_libcfg.h") must be included,
