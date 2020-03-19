@@ -132,7 +132,7 @@ constexpr pin_t digitalPinToInterrupt(const pin_t pin) { return pin; }
 
   LPC176x::gpio_set(pin, pin_status);
   // Set pin mode on every write (Arduino version does this)
-  LPC176x::pin_enable_function(pin, LPC176x::Function::GPIO);
+  LPC176x::pin_enable_function(pin, IOCON_FUNC0);
   LPC176x::gpio_set_output(pin);
 }
 [[gnu::always_inline, gnu::optimize("O3")]] inline bool digitalRead(const pin_t pin) {

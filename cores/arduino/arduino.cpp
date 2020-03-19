@@ -66,7 +66,7 @@ void delay(const int msec) {
 // As defined by Arduino INPUT(0x0), OUTPUT(0x1), INPUT_PULLUP(0x2)
 void pinMode(const pin_t pin, const uint8_t mode) {
   if (!LPC176x::pin_is_valid(pin)) return;
-  LPC176x::pin_enable_function(pin, LPC176x::Function::GPIO);
+  LPC176x::pin_enable_function(pin, IOCON_FUNC0);
   if(mode == OUTPUT) {
     LPC176x::gpio_set_output(pin);
     LPC176x::pin_set_mode(pin, LPC176x::PinMode::TRISTATE);

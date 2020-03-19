@@ -26,7 +26,7 @@ void tone(const pin_t _pin, const uint32_t frequency, const uint32_t duration = 
   LPC_TIMER2->MR[0] = (1000000 / (2 * frequency)) - 1;    // Match value (period) to set frequency
   LPC_TIMER2->TCR = LPC176x::util::bit_value(0);                 // Counter Enable
 
-  LPC176x::pin_enable_function(_pin, LPC176x::Function::GPIO);
+  LPC176x::pin_enable_function(_pin, IOCON_FUNC0);
   LPC176x::gpio_set_output(_pin);
   LPC176x::gpio_clear(_pin);
 

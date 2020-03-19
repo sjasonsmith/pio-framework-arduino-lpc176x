@@ -64,7 +64,7 @@ class HardwarePWM {
   static inline void set_idle(const pin_t pin) {
     gpio_set_output(pin); // used when at 0 duty cycle
     util::bit_set(idle_pins, get_pin_id(pin));      // mark pin as inactive
-    pin_enable_function(pin, LPC176x::Function::GPIO);
+    pin_enable_function(pin, IOCON_FUNC0);
     gpio_clear(pin);
   }
 
@@ -161,7 +161,7 @@ public:
 
   static inline bool detach(const pin_t pin) {
     if (active(pin)) {
-      pin_enable_function(pin, LPC176x::Function::GPIO); // reenable gpio
+      pin_enable_function(pin, IOCON_FUNC0); // reenable gpio
       gpio_clear(pin);
       deactivate_channel(pin);
       return true;
