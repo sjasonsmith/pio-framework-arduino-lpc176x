@@ -90,7 +90,7 @@ uint32_t MSC_Aquire_Lock() {
         _DBG("No signal from Host, Assume success\n");
         break;
       }
-      WDT_Feed();
+      Chip_WWDT_Feed(LPC_WWDT);
     }
   }
   NVIC_DisableIRQ(USB_IRQn);
@@ -305,7 +305,7 @@ void MSC_MemoryRead (void) {
     _DBG("Lock failed\n");
      return;
   }
-  WDT_Feed();
+  Chip_WWDT_Feed(LPC_WWDT);
   IOBuffer& buf = Buffers[BufferOut];
   if (buf.contents == BUFFER_EMPTY) {
     return;
@@ -336,7 +336,7 @@ void MSC_MemoryWrite (void) {
   if(!host_get_lock()) {
      return;
   }
-  WDT_Feed();
+  Chip_WWDT_Feed(LPC_WWDT);
   IOBuffer& buf = Buffers[BufferIn];
   buf.contents = lba;
   buf.length = BulkLen;
@@ -363,7 +363,7 @@ void MSC_MemoryVerify (void) {
   if(!host_get_lock()) {
      return;
   }
-  WDT_Feed();
+  Chip_WWDT_Feed(LPC_WWDT);
   length -= BulkLen;
   CSW.dDataResidue -= BulkLen;
 

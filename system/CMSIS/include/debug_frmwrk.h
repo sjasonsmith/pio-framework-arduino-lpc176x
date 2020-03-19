@@ -54,27 +54,27 @@
 #define _DG			_db_get_char(DEBUG_UART_PORT)
 //void  _printf (const  char *format, ...);
 
-extern void (*_db_msg)(LPC_UART_TypeDef *UARTx, const void *s);
-extern void (*_db_msg_)(LPC_UART_TypeDef *UARTx, const void *s);
-extern void (*_db_char)(LPC_UART_TypeDef *UARTx, uint8_t ch);
-extern void (*_db_dec)(LPC_UART_TypeDef *UARTx, uint8_t decn);
-extern void (*_db_dec_16)(LPC_UART_TypeDef *UARTx, uint16_t decn);
-extern void (*_db_dec_32)(LPC_UART_TypeDef *UARTx, uint32_t decn);
-extern void (*_db_hex)(LPC_UART_TypeDef *UARTx, uint8_t hexn);
-extern void (*_db_hex_16)(LPC_UART_TypeDef *UARTx, uint16_t hexn);
-extern void (*_db_hex_32)(LPC_UART_TypeDef *UARTx, uint32_t hexn);
-extern uint8_t (*_db_get_char)(LPC_UART_TypeDef *UARTx);
+extern void (*_db_msg)(LPC_USART_T *UARTx, const void *s);
+extern void (*_db_msg_)(LPC_USART_T *UARTx, const void *s);
+extern void (*_db_char)(LPC_USART_T *UARTx, uint8_t ch);
+extern void (*_db_dec)(LPC_USART_T *UARTx, uint8_t decn);
+extern void (*_db_dec_16)(LPC_USART_T *UARTx, uint16_t decn);
+extern void (*_db_dec_32)(LPC_USART_T *UARTx, uint32_t decn);
+extern void (*_db_hex)(LPC_USART_T *UARTx, uint8_t hexn);
+extern void (*_db_hex_16)(LPC_USART_T *UARTx, uint16_t hexn);
+extern void (*_db_hex_32)(LPC_USART_T *UARTx, uint32_t hexn);
+extern uint8_t (*_db_get_char)(LPC_USART_T *UARTx);
 
-void UARTPutChar (LPC_UART_TypeDef *UARTx, uint8_t ch);
-void UARTPuts(LPC_UART_TypeDef *UARTx, const void *str);
-void UARTPuts_(LPC_UART_TypeDef *UARTx, const void *str);
-void UARTPutDec(LPC_UART_TypeDef *UARTx, uint8_t decnum);
-void UARTPutDec16(LPC_UART_TypeDef *UARTx, uint16_t decnum);
-void UARTPutDec32(LPC_UART_TypeDef *UARTx, uint32_t decnum);
-void UARTPutHex (LPC_UART_TypeDef *UARTx, uint8_t hexnum);
-void UARTPutHex16 (LPC_UART_TypeDef *UARTx, uint16_t hexnum);
-void UARTPutHex32 (LPC_UART_TypeDef *UARTx, uint32_t hexnum);
-uint8_t UARTGetChar (LPC_UART_TypeDef *UARTx);
+void UARTPutChar (LPC_USART_T *UARTx, uint8_t ch);
+void UARTPuts(LPC_USART_T *UARTx, const void *str);
+void UARTPuts_(LPC_USART_T *UARTx, const void *str);
+void UARTPutDec(LPC_USART_T *UARTx, uint8_t decnum);
+void UARTPutDec16(LPC_USART_T *UARTx, uint16_t decnum);
+void UARTPutDec32(LPC_USART_T *UARTx, uint32_t decnum);
+void UARTPutHex (LPC_USART_T *UARTx, uint8_t hexnum);
+void UARTPutHex16 (LPC_USART_T *UARTx, uint16_t hexnum);
+void UARTPutHex32 (LPC_USART_T *UARTx, uint32_t hexnum);
+uint8_t UARTGetChar (LPC_USART_T *UARTx);
 void debug_frmwrk_init(void);
 
 #endif /* DEBUG_FRMWRK_H_ */
