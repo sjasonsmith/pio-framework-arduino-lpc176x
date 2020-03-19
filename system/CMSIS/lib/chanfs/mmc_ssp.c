@@ -13,6 +13,8 @@
 
 #include "chip.h"
 
+#define	_BV(bit) (1<<(bit))
+
 #define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
 #define SCLK_FAST	25000000UL	/* SCLK frequency under normal operation [Hz] */
@@ -22,11 +24,11 @@
 #define	MMC_WP		0						/* Write protected (yes:true, no:false, default:false) */
 
 #if SSP_CH == 0
-#define	SSPxDR		SSP0DR
-#define	SSPxSR		SSP0SR
-#define	SSPxCR0		SSP0CR0
-#define	SSPxCR1		SSP0CR1
-#define	SSPxCPSR	SSP0CPSR
+#define	SSPxDR		LPC_SSP0->DR
+#define	SSPxSR		LPC_SSP0->SR
+#define	SSPxCR0		LPC_SSP0->CR0
+#define	SSPxCR1		LPC_SSP0->CR1
+#define	SSPxCPSR	LPC_SSP0->CPSR
 #define	CS_LOW()	{FIO0CLR2 = _BV(0);}	/* Set P0.16 low */
 #define	CS_HIGH()	{FIO0SET2 = _BV(0);}	/* Set P0.16 high */
 #define PCSSPx		PCSSP0
@@ -38,13 +40,13 @@
 		FIO0DIR |= _BV(16);		/* CS# (P0.16) */\
 		}
 #elif SSP_CH == 1
-#define	SSPxDR		SSP1DR
-#define	SSPxSR		SSP1SR
-#define	SSPxCR0		SSP1CR0
-#define	SSPxCR1		SSP1CR1
-#define	SSPxCPSR	SSP1CPSR
 #define	CS_LOW()	{FIO0CLR0 = _BV(6);}	/* Set P0.6 low */
 #define	CS_HIGH()	{FIO0SET0 = _BV(6);}	/* Set P0.6 high */
+#define	SSPxDR		LPC_SSP1->DR
+#define	SSPxSR		LPC_SSP1->SR
+#define	SSPxCR0		LPC_SSP1->CR0
+#define	SSPxCR1		LPC_SSP1->CR1
+#define	SSPxCPSR	LPC_SSP1->CPSR
 #define PCSSPx		PCSSP1
 #define	PCLKSSPx	PCLK_SSP1
 #define ATTACH_SSP() {\

@@ -178,16 +178,16 @@ public:
   }
 
   static void set_period(const uint32_t period) {
-    uint32_t old_period = LPC_TIM3->MR0;
-    LPC_TIM3->MR0 = period - 1;
-    LPC_TIM3->TC = util::map(LPC_TIM3->TC, 0, old_period, 0, LPC_TIM3->MR0);
-    if (LPC_TIM3->TC > LPC_TIM3->MR0) {
-      LPC_TIM3->TC = LPC_TIM3->MR0 - 1;
+    uint32_t old_period = LPC_TIMER3->MR[0];
+    LPC_TIMER3->MR[0] = period - 1;
+    LPC_TIMER3->TC = util::map(LPC_TIMER3->TC, 0, old_period, 0, LPC_TIMER3->MR[0]);
+    if (LPC_TIMER3->TC > LPC_TIMER3->MR[0]) {
+      LPC_TIMER3->TC = LPC_TIMER3->MR[0] - 1;
     }
   }
 
   static uint32_t get_period() {
-    return LPC_TIM3->MR0 + 1;
+    return LPC_TIMER3->MR[0] + 1;
   }
 
   static uint32_t size() {

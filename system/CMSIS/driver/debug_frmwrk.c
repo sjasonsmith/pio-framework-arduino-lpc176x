@@ -67,7 +67,7 @@ uint8_t (*_db_get_char)(LPC_USART_T *UARTx) = UARTGetChar;
  **********************************************************************/
 void UARTPutChar(LPC_USART_T *UARTx, uint8_t ch) {
   if (debug_frmwrk_initialized)
-    UART_Send(UARTx, &ch, 1, BLOCKING);
+     Chip_UART_SendBlocking(UARTx, &ch, 1);
 }
 
 /*********************************************************************//**
@@ -79,7 +79,7 @@ uint8_t UARTGetChar(LPC_USART_T *UARTx) {
   uint8_t tmp = 0;
 
   if (debug_frmwrk_initialized)
-    UART_Receive(UARTx, &tmp, 1, BLOCKING);
+    Chip_UART_ReadBlocking(UARTx, &tmp, 1);
 
   return(tmp);
 }

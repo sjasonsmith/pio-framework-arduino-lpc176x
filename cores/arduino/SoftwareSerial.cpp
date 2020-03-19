@@ -57,19 +57,19 @@ uint32_t SoftwareSerial::cur_speed = 0;
 void SoftwareSerial::setSpeed(uint32_t speed)
 {
   if (speed != cur_speed) {
-    NVIC_DisableIRQ(RIT_IRQn);
+    NVIC_DisableIRQ(RITIMER_IRQn);
     if (speed != 0) {
       uint32_t clock_rate, cmp_value;
       // Get PCLK value of RIT
       clock_rate = CLKPWR_GetPCLK(CLKPWR_PCLKSEL_RIT);
       cmp_value = clock_rate/(speed*OVERSAMPLE);
-      LPC_RIT->RICOMPVAL = cmp_value;
-      LPC_RIT->RICOUNTER	= 0x00000000;
+      LPC_RITIMER->COMPVAL = cmp_value;
+      LPC_RITIMER->COUNTER	= 0x00000000;
       /* Set timer enable clear bit to clear timer to 0 whenever
       * counter value equals the contents of RICOMPVAL
       */
-      LPC_RIT->RICTRL |= (1<<1);
-      NVIC_EnableIRQ(RIT_IRQn);
+      LPC_RITIMER->CTRL |= (1<<1);
+      NVIC_EnableIRQ(RITIMER_IRQn);
     }
     cur_speed = speed;
   }
@@ -234,7 +234,7 @@ inline void SoftwareSerial::setRXTX(bool input) {
 
 extern "C" 
 [[gnu::optimize("O3")]] void RIT_IRQHandler(void) {
-  LPC_RIT->RICTRL |= 1;
+  LPC_RITIMER->CTRL |= 1;
   SoftwareSerial::handle_interrupt();
 }
 
@@ -271,8 +271,8 @@ void SoftwareSerial::begin(long speed) {
   #endif
   _speed = speed;
   if (!initialised) {
-    RIT_Init(LPC_RIT);
-    NVIC_SetPriority(RIT_IRQn, NVIC_EncodePriority(0, INTERRUPT_PRIORITY, 0));
+    Chip_RIT_Init(LPC_RITIMER);
+    NVIC_SetPriority(RITIMER_IRQn, NVIC_EncodePriority(0, INTERRUPT_PRIORITY, 0));
     initialised = true;
   }
   if (!_half_duplex) {

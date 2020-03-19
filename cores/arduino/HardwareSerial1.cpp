@@ -25,7 +25,7 @@
 #include "Arduino.h"
 #include "HardwareSerial.h"
 
-// Each HardwareSerial is defined in its own file, sine the linker pulls
+// Each HardwareSerial is defined in its own file, since the linker pulls
 // in the entire file when any element inside is used. --gc-sections can
 // additionally cause unused symbols to be dropped, but ISRs have the
 // "used" attribute so are never dropped and they keep the
@@ -33,7 +33,7 @@
 // file prevents the linker from pulling in any unused instances in the
 // first place.
 
-HardwareSerial<> Serial1 = HardwareSerial<>((LPC_UART_TypeDef *) LPC_UART1);
+HardwareSerial<> Serial1 = HardwareSerial<>(LPC_UART1);
 extern "C" void UART1_IRQHandler(void) {
   Serial1.IRQHandler();
 }

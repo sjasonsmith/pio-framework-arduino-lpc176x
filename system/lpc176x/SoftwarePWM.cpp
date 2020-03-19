@@ -10,7 +10,7 @@ std::array<PwmFrameItem, PWM_MAX_SOFTWARE_CHANNELS> pwm_frame;  // need to cache
 struct PinRange { std::array<PwmFrameItem, PWM_MAX_SOFTWARE_CHANNELS>::iterator start, end; };
 std::array<PinRange, 3> MR_pin = {};
 
-volatile uint32_t* MR = &LPC_TIM3->MR1; // base pointer to the match register MR1 - MR3, indexed MR[0-2]
+volatile uint32_t* MR = &LPC_TIMER3->MR[1]; // base pointer to the match register MR1 - MR3, indexed MR[0-2]
 auto next_pin = pwm_frame.begin();
 auto end_pin = pwm_frame.end();
 
@@ -26,8 +26,8 @@ auto end_pin = pwm_frame.end();
 extern "C" 
 [[gnu::optimize("O3")]] void TIMER3_IRQHandler(void) {
   constexpr std::array<uint8_t, 3> MR_int {3, 6, 9};
-  const uint32_t interrupts = LPC_TIM3->IR;
-  LPC_TIM3->IR = interrupts;  // clear all interrupts
+  const uint32_t interrupts = LPC_TIMER3->IR;
+  LPC_TIMER3->IR = interrupts;  // clear all interrupts
 
   if (util::bit_test(interrupts, 0)) {  // MR0 interrupt
     // reset all channels
@@ -51,8 +51,8 @@ extern "C"
       if(next_pin != end_pin) {
         MR_pin[MR_reg].start = next_pin;                  // the first pin to toggle on this channels interrupt
         // Write new value to match register with safety offset, Timers interrupt only trigger if MR == TC
-        MR[MR_reg] = next_pin->match > LPC_TIM3->TC + PWM_MATCH_OFFSET ? next_pin->match : LPC_TIM3->TC + PWM_MATCH_OFFSET;
-        util::bit_set(LPC_TIM3->MCR, MR_int[MR_reg]);     // enable this channels interrupt
+        MR[MR_reg] = next_pin->match > LPC_TIMER3->TC + PWM_MATCH_OFFSET ? next_pin->match : LPC_TIMER3->TC + PWM_MATCH_OFFSET;
+        util::bit_set(LPC_TIMER3->MCR, MR_int[MR_reg]);     // enable this channels interrupt
         const uint32_t max_threshhold = MR[MR_reg];       // copy to a "faster" non volatile variable
         // skip until match value outside threshhold for next interrupt triggered by this match register
         while(next_pin != end_pin && next_pin->match <= max_threshhold) next_pin = std::next(next_pin);
@@ -72,14 +72,14 @@ extern "C"
       // calculate next pin(s) to match for
       if(next_pin != end_pin) {
         MR_pin[MR_reg].start = next_pin;
-        MR[MR_reg] = next_pin->match > LPC_TIM3->TC + PWM_MATCH_OFFSET ? next_pin->match : LPC_TIM3->TC + PWM_MATCH_OFFSET;
+        MR[MR_reg] = next_pin->match > LPC_TIMER3->TC + PWM_MATCH_OFFSET ? next_pin->match : LPC_TIMER3->TC + PWM_MATCH_OFFSET;
         const uint32_t max_threshhold = MR[MR_reg];
         // skip until match value outside threshhold for next interrupt triggered by this match register
         while(next_pin != end_pin && next_pin->match <= max_threshhold) next_pin = std::next(next_pin);
         MR_pin[MR_reg].end = next_pin;
       } else {
         // no more pins this frame, disable this channels interrupt
-        util::bit_clear(LPC_TIM3->MCR, MR_int[MR_reg]);
+        util::bit_clear(LPC_TIMER3->MCR, MR_int[MR_reg]);
       }
     }
   }
