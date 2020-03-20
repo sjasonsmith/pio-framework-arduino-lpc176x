@@ -61,7 +61,7 @@ void SoftwareSerial::setSpeed(uint32_t speed)
     if (speed != 0) {
       uint32_t clock_rate, cmp_value;
       // Get PCLK value of RIT
-      clock_rate = CLKPWR_GetPCLK(CLKPWR_PCLKSEL_RIT);
+      clock_rate = Chip_Clock_GetPeripheralClockRate(SYSCTL_PCLK_RIT);
       cmp_value = clock_rate/(speed*OVERSAMPLE);
       LPC_RITIMER->COMPVAL = cmp_value;
       LPC_RITIMER->COUNTER	= 0x00000000;
