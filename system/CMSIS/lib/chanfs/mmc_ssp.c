@@ -23,41 +23,44 @@
 //#define	MMC_CD		(!(FIO2PIN1 & _BV(1)))	/* Card detect (yes:true, no:false, default:true) */
 #define	MMC_WP		0						/* Write protected (yes:true, no:false, default:false) */
 
+// TODO: Pin numbers for CS line needs abstracted, probably
 #if SSP_CH == 0
 #define	SSPxDR		LPC_SSP0->DR
 #define	SSPxSR		LPC_SSP0->SR
 #define	SSPxCR0		LPC_SSP0->CR0
 #define	SSPxCR1		LPC_SSP0->CR1
 #define	SSPxCPSR	LPC_SSP0->CPSR
-#define	CS_LOW()	{FIO0CLR2 = _BV(0);}	/* Set P0.16 low */
-#define	CS_HIGH()	{FIO0SET2 = _BV(0);}	/* Set P0.16 high */
-#define PCSSPx		PCSSP0
-#define	PCLKSSPx	PCLK_SSP0
+#define	CS_LOW()	{LPC_GPIO->CLR = _BV(16);}	/* Set P0.16 low */
+#define	CS_HIGH()	{LPC_GPIO->SET = _BV(16);}	/* Set P0.16 high */
+#define SYSCTL_CLOCK_SSPx SYSCTL_CLOCK_SSP0
+#define SYSCTL_PCLK_SSPx SYSCTL_PCLK_SSP0
 #define ATTACH_SSP() {\
-		__set_PINSEL(0, 15, 2);	/* SCK0 */\
-		__set_PINSEL(0, 17, 2);	/* MISO0 */\
-		__set_PINSEL(0, 18, 2);	/* MOSI0 */\
-		FIO0DIR |= _BV(16);		/* CS# (P0.16) */\
+		Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 15, FUNC2);	/* SCK1 */\
+		Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 17, FUNC2);	/* MISO1 */\
+		Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 18, FUNC2);	/* MOSI1 */\
+		LPC_GPIO->DIR |= _BV(16);		/* CS# (P0.16) */\
 		}
 #elif SSP_CH == 1
-#define	CS_LOW()	{FIO0CLR0 = _BV(6);}	/* Set P0.6 low */
-#define	CS_HIGH()	{FIO0SET0 = _BV(6);}	/* Set P0.6 high */
+#define	CS_LOW()	{LPC_GPIO->CLR = _BV(6);} /* Set P0.6 low */
+#define	CS_HIGH()	{LPC_GPIO->SET = _BV(6);} /* Set P0.6 high */
 #define	SSPxDR		LPC_SSP1->DR
 #define	SSPxSR		LPC_SSP1->SR
 #define	SSPxCR0		LPC_SSP1->CR0
 #define	SSPxCR1		LPC_SSP1->CR1
 #define	SSPxCPSR	LPC_SSP1->CPSR
-#define PCSSPx		PCSSP1
-#define	PCLKSSPx	PCLK_SSP1
+#define SYSCTL_CLOCK_SSPx SYSCTL_CLOCK_SSP1
+#define SYSCTL_PCLK_SSPx SYSCTL_PCLK_SSP1
 #define ATTACH_SSP() {\
-		__set_PINSEL(0, 7, 2);	/* SCK1 */\
-		__set_PINSEL(0, 8, 2);	/* MISO1 */\
-		__set_PINSEL(0, 9, 2);	/* MOSI1 */\
-		FIO0DIR |= _BV(6);		/* CS# (P0.6) */\
+		Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 7, FUNC2);	/* SCK1 */\
+		Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 8, FUNC2);	/* MISO1 */\
+		Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 9, FUNC2);	/* MOSI1 */\
+		LPC_GPIO->DIR |= _BV(6); /* CS# (P0.6) */\
 		}
+#else
+	#error "Not implemented for provided value of SSP_CH"
 #endif
 
-#define PCLKDIV_SSP	PCLKDIV_2
+#define PCLKDIV_SSP	SYSCTL_CLKDIV_2
 
 static void set_spi_clock(uint32_t target_clock)
 {
@@ -65,11 +68,7 @@ static void set_spi_clock(uint32_t target_clock)
 
   /* The SSP clock is derived from the (main system oscillator / 2),
       so compute the best divider from that clock */
-  #if SSP_CH == 0
-    ssp_clk = CLKPWR_GetPCLK (CLKPWR_PCLKSEL_SSP0);
-  #elif SSP_CH == 1
-    ssp_clk = CLKPWR_GetPCLK (CLKPWR_PCLKSEL_SSP1);
-  #endif
+    ssp_clk = Chip_Clock_GetPeripheralClockRate (SYSCTL_PCLK_SSPx);
 
 	/* Find closest divider to get at or under the target frequency.
 	   Use smallest prescale possible and rely on the divider to get
@@ -299,12 +298,11 @@ int select (void)	/* 1:OK, 0:Timeout */
 /*-----------------------------------------------------------------------*/
 /* Control SPI module (Platform dependent)                               */
 /*-----------------------------------------------------------------------*/
-
 static
 void power_on (void)	/* Enable SSP module and attach it to I/O pads */
 {
-	__set_PCONP(PCSSPx, 1);	/* Enable SSP module */
-	__set_PCLKSEL(PCLKSSPx, PCLKDIV_SSP);	/* Select PCLK frequency for SSP */
+	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SSPx);
+	Chip_Clock_SetPCLKDiv(SYSCTL_PCLK_SSPx, PCLKDIV_SSP);
 	SSPxCR0 = 0x0007;		/* Set mode: SPI mode 0, 8-bit */
 	SSPxCR1 = 0x2;			/* Enable SSP with Master */
 	ATTACH_SSP();			/* Attach SSP module to I/O pads */
