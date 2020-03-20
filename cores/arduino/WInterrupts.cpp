@@ -79,60 +79,60 @@ void detachInterrupt(const pin_t pin) {
 extern "C" void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode) {
   //pin here is the processor pin, not logical pin
   if (port == 0) {
-    LPC_GPIOINT->IO0IntClr = LPC176x::util::bit_value(pin);
+    LPC_GPIOINT->IO0.CLR = LPC176x::util::bit_value(pin);
     if (mode == RISING) {
-      LPC176x::util::bit_set(LPC_GPIOINT->IO0IntEnR, pin);
-      LPC176x::util::bit_clear(LPC_GPIOINT->IO0IntEnF, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO0.ENR, pin);
+      LPC176x::util::bit_clear(LPC_GPIOINT->IO0.ENF, pin);
     }
     else if (mode == FALLING) {
-      LPC176x::util::bit_set(LPC_GPIOINT->IO0IntEnF, pin);
-      LPC176x::util::bit_clear(LPC_GPIOINT->IO0IntEnR, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO0.ENF, pin);
+      LPC176x::util::bit_clear(LPC_GPIOINT->IO0.ENR, pin);
     }
     else if (mode == CHANGE) {
-      LPC176x::util::bit_set(LPC_GPIOINT->IO0IntEnR, pin);
-      LPC176x::util::bit_set(LPC_GPIOINT->IO0IntEnF, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO0.ENR, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO0.ENF, pin);
     }
   }
   else {
-    LPC_GPIOINT->IO2IntClr = LPC176x::util::bit_value(pin);
+    LPC_GPIOINT->IO2.CLR = LPC176x::util::bit_value(pin);
     if (mode == RISING) {
-      LPC176x::util::bit_set(LPC_GPIOINT->IO2IntEnR, pin);
-      LPC176x::util::bit_clear(LPC_GPIOINT->IO2IntEnF, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO2.ENR, pin);
+      LPC176x::util::bit_clear(LPC_GPIOINT->IO2.ENF, pin);
     }
     else if (mode == FALLING) {
-      LPC176x::util::bit_set(LPC_GPIOINT->IO2IntEnF, pin);
-      LPC176x::util::bit_clear(LPC_GPIOINT->IO2IntEnR, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO2.ENF, pin);
+      LPC176x::util::bit_clear(LPC_GPIOINT->IO2.ENR, pin);
     }
     else if (mode == CHANGE) {
-      LPC176x::util::bit_set(LPC_GPIOINT->IO2IntEnR, pin);
-      LPC176x::util::bit_set(LPC_GPIOINT->IO2IntEnF, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO2.ENR, pin);
+      LPC176x::util::bit_set(LPC_GPIOINT->IO2.ENF, pin);
     }
   }
 }
 
 extern "C" void GpioDisableInt(const uint32_t port, const uint32_t pin) {
   if (port == 0) {
-    LPC176x::util::bit_clear(LPC_GPIOINT->IO0IntEnR, pin);
-    LPC176x::util::bit_clear(LPC_GPIOINT->IO0IntEnF, pin);
-    LPC_GPIOINT->IO0IntClr = LPC176x::util::bit_value(pin);
+    LPC176x::util::bit_clear(LPC_GPIOINT->IO0.ENR, pin);
+    LPC176x::util::bit_clear(LPC_GPIOINT->IO0.ENF, pin);
+    LPC_GPIOINT->IO0.CLR = LPC176x::util::bit_value(pin);
   }
   else {
-    LPC176x::util::bit_clear(LPC_GPIOINT->IO2IntEnR, pin);
-    LPC176x::util::bit_clear(LPC_GPIOINT->IO2IntEnF, pin);
-    LPC_GPIOINT->IO2IntClr = LPC176x::util::bit_value(pin);
+    LPC176x::util::bit_clear(LPC_GPIOINT->IO2.ENR, pin);
+    LPC176x::util::bit_clear(LPC_GPIOINT->IO2.ENF, pin);
+    LPC_GPIOINT->IO2.CLR = LPC176x::util::bit_value(pin);
   }
 }
 
 extern "C" void EINT3_IRQHandler(void) {
   // Read in all current interrupt registers. We do this once as the
   // GPIO interrupt registers are on the APB bus, and this is slow.
-  uint32_t rise0 = LPC_GPIOINT->IO0IntStatR,
-           fall0 = LPC_GPIOINT->IO0IntStatF,
-           rise2 = LPC_GPIOINT->IO2IntStatR,
-           fall2 = LPC_GPIOINT->IO2IntStatF;
+  uint32_t rise0 = LPC_GPIOINT->IO0.STATR,
+           fall0 = LPC_GPIOINT->IO0.STATF,
+           rise2 = LPC_GPIOINT->IO2.STATR,
+           fall2 = LPC_GPIOINT->IO2.STATF;
 
   // Clear the interrupts ASAP
-  LPC_GPIOINT->IO0IntClr = LPC_GPIOINT->IO2IntClr = 0xFFFFFFFF;
+  LPC_GPIOINT->IO0.CLR = LPC_GPIOINT->IO2.CLR = 0xFFFFFFFF;
   NVIC_ClearPendingIRQ(EINT3_IRQn);
 
   while (rise0 > 0) {                                       // If multiple pins changes happened continue as long as there are interrupts pending
