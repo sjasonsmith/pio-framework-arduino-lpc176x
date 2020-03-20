@@ -145,7 +145,7 @@ typedef enum {
 #define __CM3_REV                 0x0200
 #define __MPU_PRESENT             1			/*!< MPU present or not                    */
 #define __NVIC_PRIO_BITS          5			/*!< Number of Bits used for Priority Levels */
-#define __Vendor_SysTickConfig    0			/*!< Set to 1 if different SysTick Config is used */
+#define __Vendor_SysTickConfig    1			/*!< Set to 1 if different SysTick Config is used */
 #define __FPU_PRESENT             0			/*!< FPU present or not                    */
 
 /**
