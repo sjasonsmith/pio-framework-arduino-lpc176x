@@ -16,6 +16,8 @@
  */
 
 #pragma once
+// TODO: Won't work properly for MCUs with PWM0
+#ifdef CHIP_LPC175X_6X
 
 #include <chip.h>
 #include <gpio.h>
@@ -176,3 +178,4 @@ private:
 };
 }
 
+#endif

@@ -36,7 +36,8 @@
  * @{
  */
 
-#ifndef LPC17XX_PWM_H_
+// TODO: Won't work properly for MCUs with PWM0
+#if !defined(LPC17XX_PWM_H_) && defined(CHIP_LPC175X_6X)
 #define LPC17XX_PWM_H_
 
 /* Includes ------------------------------------------------------------------- */

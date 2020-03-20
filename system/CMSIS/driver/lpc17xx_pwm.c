@@ -170,11 +170,11 @@ void PWM_Init(LPC_PWM_TypeDef *PWMx, uint32_t PWMTimerCounterMode, void *PWM_Con
 	pTimeCfg = (PWM_TIMERCFG_Type *)PWM_ConfigStruct;
 	pCounterCfg = (PWM_COUNTERCFG_Type *)PWM_ConfigStruct;
 
-
-	CLKPWR_ConfigPPWR (CLKPWR_PCONP_PCPWM1, ENABLE);
-	CLKPWR_SetPCLKDiv (CLKPWR_PCLKSEL_PWM1, CLKPWR_PCLKSEL_CCLK_DIV_4);
+	// TODO: Won't work for PWM0
+    Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PWM1);
+	Chip_Clock_SetPCLKDiv (SYSCTL_PCLK_PWM1, SYSCTL_CLKDIV_4);
 	// Get peripheral clock of PWM1
-	clkdlycnt = (uint64_t) CLKPWR_GetPCLK (CLKPWR_PCLKSEL_PWM1);
+	clkdlycnt = Chip_Clock_GetPeripheralClockRate (SYSCTL_PCLK_PWM1);
 
 
 	// Clear all interrupts pending
@@ -225,7 +225,8 @@ void PWM_DeInit (LPC_PWM_TypeDef *PWMx)
 
 	// Disable PWM control (timer, counter and PWM)
 	PWMx->TCR = 0x00;
-	CLKPWR_ConfigPPWR (CLKPWR_PCONP_PCPWM1, DISABLE);
+	// TODO: This won't work for PWM0
+	Chip_Clock_DisablePeriphClock (SYSCTL_CLOCK_PWM1);
 
 }
 
