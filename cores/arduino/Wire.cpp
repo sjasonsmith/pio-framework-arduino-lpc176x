@@ -29,11 +29,11 @@ extern "C" {
 #define USEDI2CDEV_M 1
 
 #if (USEDI2CDEV_M == 0)
-  #define I2CDEV_M LPC_I2C0
+  #define I2CDEV_M I2C0
 #elif (USEDI2CDEV_M == 1)
-  #define I2CDEV_M LPC_I2C1
+  #define I2CDEV_M I2C1
 #elif (USEDI2CDEV_M == 2)
-  #define I2CDEV_M LPC_I2C2
+  #define I2CDEV_M I2C2
 #else
   #error "Master I2C device not defined!"
 #endif
@@ -57,6 +57,12 @@ TwoWire::TwoWire() {
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
+namespace {
+  // Constexpr wrappers to improve readability
+  constexpr uint8_t PORT(uint8_t portNum) { return portNum; }
+  constexpr uint8_t PIN(uint8_t pinNum) { return pinNum; }
+  constexpr uint32_t MODE(uint32_t mode) { return mode; }  
+}
 
 void TwoWire::begin(void) {
   rxBufferIndex = 0;
@@ -65,45 +71,25 @@ void TwoWire::begin(void) {
   txBufferIndex = 0;
   txBufferLength = 0;
 
-  /*
-   * Init I2C pin connect
-   */
-  PINSEL_CFG_Type PinCfg;
-  PinCfg.OpenDrain = 0;
-  PinCfg.Pinmode = 0;
-
+  // Init I2C pin connect
   #if USEDI2CDEV_M == 0
-    PinCfg.Funcnum = 1;
-    PinCfg.Pinnum = 27;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg); // SDA0 / D57  AUX-1
-    PinCfg.Pinnum = 28;
-    PINSEL_ConfigPin(&PinCfg); // SCL0 / D58  AUX-1
-  #endif
-
-  #if USEDI2CDEV_M == 1
-    PinCfg.Funcnum = 3;
-    PinCfg.Pinnum = 0;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg);  // SDA1 / D20 SCA
-    PinCfg.Pinnum = 1;
-    PINSEL_ConfigPin(&PinCfg);  // SCL1 / D21 SCL
-  #endif
-
-  #if USEDI2CDEV_M == 2
-    PinCfg.Funcnum = 2;
-    PinCfg.Pinnum = 10;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg); // SDA2 / D38  X_ENABLE_PIN
-    PinCfg.Pinnum = 11;
-    PINSEL_ConfigPin(&PinCfg); // SCL2 / D55  X_DIR_PIN
+    Chip_IOCON_PinMux(LPC_IOCON, PORT(0), PIN(27), MODE(0), FUNC1); // SDA0 / D57  AUX-1
+    Chip_IOCON_PinMux(LPC_IOCON, PORT(0), PIN(28), MODE(0), FUNC1); // SCL0 / D58  AUX-1
+  #elif USEDI2CDEV_M == 1
+    Chip_IOCON_PinMux(LPC_IOCON, PORT(0), PIN(0), MODE(0), FUNC3); // SDA1 / D20 SCA
+    Chip_IOCON_PinMux(LPC_IOCON, PORT(0), PIN(1), MODE(0), FUNC3); // SCL1 / D21 SCL
+  #elif USEDI2CDEV_M == 2
+    Chip_IOCON_PinMux(LPC_IOCON, PORT(0), PIN(10), MODE(0), FUNC2); // SDA2 / D38  X_ENABLE_PIN
+    Chip_IOCON_PinMux(LPC_IOCON, PORT(0), PIN(11), MODE(0), FUNC2); // SCL2 / D55  X_DIR_PIN
   #endif
 
   // Initialize I2C peripheral
-  I2C_Init(I2CDEV_M, 100000);
+  Chip_I2C_Init(I2CDEV_M);
+  Chip_I2C_SetClockRate(I2CDEV_M, 100000);
 
   // Enable Master I2C operation
-  I2C_Cmd(I2CDEV_M, I2C_MASTER_MODE, ENABLE);
+  // TODO: Looks like this is no longer needed
+  //I2C_Cmd(I2CDEV_M, I2C_MASTER_MODE, ENABLE);
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) {
@@ -112,20 +98,21 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) {
     quantity = BUFFER_LENGTH;
 
   // perform blocking read into buffer
-  I2C_M_SETUP_Type transferMCfg;
-  transferMCfg.sl_addr7bit = address >> 1; // not sure about the right shift
-  transferMCfg.tx_data = NULL;
-  transferMCfg.tx_length = 0;
-  transferMCfg.rx_data = rxBuffer;
-  transferMCfg.rx_length = quantity;
-  transferMCfg.retransmissions_max = 3;
-  I2C_MasterTransferData(I2CDEV_M, &transferMCfg, I2C_TRANSFER_POLLING);
+  I2C_XFER_T transferMCfg;
+  transferMCfg.slaveAddr = address >> 1; // not sure about the right shift
+  transferMCfg.txBuff = NULL;
+  transferMCfg.txSz = 0;
+  transferMCfg.rxBuff = rxBuffer;
+  transferMCfg.rxSz = quantity;
+  //transferMCfg.retransmissions_max = 3;
+  // TODO: Low confidence this will work
+  Chip_I2C_MasterTransfer(I2CDEV_M, &transferMCfg);
 
   // set rx buffer iterator vars
   rxBufferIndex = 0;
-  rxBufferLength = transferMCfg.rx_count;
+  rxBufferLength = transferMCfg.rxSz;
 
-  return transferMCfg.rx_count;
+  return transferMCfg.rxSz;
 }
 
 uint8_t TwoWire::requestFrom(int address, int quantity) {
@@ -148,14 +135,15 @@ void TwoWire::beginTransmission(int address) {
 
 uint8_t TwoWire::endTransmission(void) {
   // transmit buffer (blocking)
-  I2C_M_SETUP_Type transferMCfg;
-  transferMCfg.sl_addr7bit = txAddress >> 1; // not sure about the right shift
-  transferMCfg.tx_data = txBuffer;
-  transferMCfg.tx_length = txBufferLength;
-  transferMCfg.rx_data = NULL;
-  transferMCfg.rx_length = 0;
-  transferMCfg.retransmissions_max = 3;
-  Status status = I2C_MasterTransferData(I2CDEV_M, &transferMCfg, I2C_TRANSFER_POLLING);
+  I2C_XFER_T transferMCfg;
+  transferMCfg.slaveAddr = txAddress >> 1; // not sure about the right shift
+  transferMCfg.txBuff = txBuffer;
+  transferMCfg.txSz = txBufferLength;
+  transferMCfg.rxBuff = NULL;
+  transferMCfg.rxSz = 0;
+  //transferMCfg.retransmissions_max = 3;
+  // TODO: Low confidence this will work
+  uint32_t status = Chip_I2C_MasterTransfer(I2CDEV_M, &transferMCfg);
 
   // reset tx buffer iterator vars
   txBufferIndex = 0;
@@ -164,7 +152,7 @@ uint8_t TwoWire::endTransmission(void) {
   // indicate that we are done transmitting
   transmitting = 0;
 
-  return status == SUCCESS ? 0 : 4;
+  return status == I2C_STATUS_DONE ? 0 : 4;
 }
 
 // must be called after beginTransmission(address)
