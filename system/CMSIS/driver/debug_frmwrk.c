@@ -253,52 +253,26 @@ void UARTPutHex32(LPC_USART_T *UARTx, uint32_t hexnum) {
  * @return    None
  **********************************************************************/
 void debug_frmwrk_init(void) {
-  UART_CFG_Type UARTConfigStruct;
-  PINSEL_CFG_Type PinCfg;
+  // Values common to all supported UARTs
+  const uint8_t portNum = 0, pinMode = 0, pinFunc = 0;
 
   #if (USED_UART_DEBUG_PORT==0)
-    /*
-     * Initialize UART0 pin connect
-     */
-    PinCfg.Funcnum = 1;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = 2;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg);
-    PinCfg.Pinnum = 3;
-    PINSEL_ConfigPin(&PinCfg);
-
+    const uint8_t pinNum1 = 2, pinNum2 = 3;
+    LPC_USART_T * const DEBUG_UART = LPC_UART0;
   #elif (USED_UART_DEBUG_PORT==1)
-    /*
-     * Initialize UART1 pin connect
-     */
-    PinCfg.Funcnum = 1;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = 15;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg);
-    PinCfg.Pinnum = 16;
-    PINSEL_ConfigPin(&PinCfg);
+    const uint8_t pinNum1 = 15, pinNum2 = 16;
+    LPC_USART_T * const DEBUG_UART = LPC_UART1;
+  #else
+    #error "USED_UART_DEBUG_PORT value is not supported"
   #endif
 
-  /* Initialize UART Configuration parameter structure to default state:
-   * Baudrate = 9600bps
-   * 8 data bit
-   * 1 Stop bit
-   * None parity
-   */
-  UART_ConfigStructInit(&UARTConfigStruct);
+  Chip_IOCON_PinMux(LPC_IOCON, portNum, pinNum1, pinMode, pinFunc);
+  Chip_IOCON_PinMux(LPC_IOCON, portNum, pinNum2, pinMode, pinFunc);
 
-  // Re-configure baudrate to 115200bps
-  UARTConfigStruct.Baud_rate = 115200;
-
-  // Initialize DEBUG_UART_PORT peripheral with given to corresponding parameter
-  UART_Init((LPC_USART_T *)DEBUG_UART_PORT, &UARTConfigStruct);
-
-  // Enable UART Transmit
-  UART_TxCmd((LPC_USART_T *)DEBUG_UART_PORT, ENABLE);
+  Chip_UART_Init(DEBUG_UART);
+  Chip_UART_SetBaudFDR(DEBUG_UART, 115200);
+  Chip_UART_ConfigData(DEBUG_UART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
+  Chip_UART_TXEnable(DEBUG_UART);
 
   debug_frmwrk_initialized = TRUE;
 }
