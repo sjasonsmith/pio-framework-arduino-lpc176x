@@ -394,11 +394,14 @@
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
+
+// TODO: These are likely wrong, especially as we expand to more chips
 #define XTAL        (12000000UL)        /* Oscillator frequency               */
 #define OSC_CLK     (      XTAL)        /* Main oscillator frequency          */
 #define RTC_CLK     (   32000UL)        /* RTC oscillator frequency           */
 #define IRC_OSC     ( 4000000UL)        /* Internal RC oscillator frequency   */
-
+const uint32_t OscRateIn = IRC_OSC;
+const uint32_t RTCOscRateIn = RTC_CLK;
 
 /* F_cco0 = (2 * M * F_in) / N  */
 #define __M               (((PLL0CFG_Val      ) & 0x7FFF) + 1)

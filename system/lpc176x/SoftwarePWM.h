@@ -164,17 +164,18 @@ class SoftwarePWM {
 public:
   static void init(const uint32_t frequency, const uint32_t int_priority = 2) {
     // Setup timer for Timer3 Interrupt controlled PWM
-    LPC_SC->PCONP |= 1 << 23;                 // power on timer3
-    LPC_TIM3->PR = 0; // no prescaler
-    LPC_TIM3->MCR = util::bitset_value(0, 1); // Interrupt on MR0, reset on MR0
-    LPC_TIM3->MR0 = (CLKPWR_GetPCLK(CLKPWR_PCLKSEL_TIMER3) / frequency) - 1; // set frequency
-    LPC_TIM3->TCR = util::bit_value(0);       // enable the timer
+    LPC_SYSCON->PCONP |= 1 << 23;               // power on timer3
+    LPC_TIMER3->PR = 0; // no prescaler
+    LPC_TIMER3->MCR = util::bitset_value(0, 1); // Interrupt on MR0, reset on MR0
+
+    LPC_TIMER3->MR[0] = (Chip_Clock_GetPeripheralClockRate(SYSCTL_PCLK_TIMER3) / frequency) - 1; // set frequency
+    LPC_TIMER3->TCR = util::bit_value(0);       // enable the timer
 
     NVIC_SetPriority(TIMER3_IRQn, NVIC_EncodePriority(0, int_priority, 0));
   }
 
   static void set_frequency(const uint32_t frequency){
-    set_period(CLKPWR_GetPCLK(CLKPWR_PCLKSEL_TIMER3) / frequency);
+    set_period(Chip_Clock_GetPeripheralClockRate(SYSCTL_PCLK_TIMER3) / frequency);
   }
 
   static void set_period(const uint32_t period) {
@@ -207,7 +208,7 @@ public:
   }
 
   static void set_us(const pin_t pin, const uint32_t value) {
-    set_match(pin, (CLKPWR_GetPCLK(CLKPWR_PCLKSEL_TIMER3) / 1000000) * value);
+    //set_match(pin, (CLKPWR_GetPCLK(CLKPWR_PCLKSEL_TIMER3) / 1000000) * value);
   }
 
   static void set_match(const pin_t pin, const uint32_t value) {

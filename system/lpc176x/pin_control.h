@@ -15,13 +15,6 @@ enum PinMode : uint8_t {
   OPENDRAIN,
 };
 
-enum Function : uint8_t {
-  GPIO,
-  FUNC1,
-  FUNC2,
-  FUNC3,
-};
-
 struct pin_type {
   struct gpio_block {
     uint32_t reg_dir;               // 0x00
