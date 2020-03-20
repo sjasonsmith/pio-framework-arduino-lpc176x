@@ -65,87 +65,49 @@ public:
   }
 
   void begin(uint32_t baudrate) {
-    UART_CFG_Type UARTConfigStruct;
-    PINSEL_CFG_Type PinCfg;
-    UART_FIFO_CFG_Type FIFOConfig;
-
     if (Baudrate == baudrate) return; // No need to re-initialize
 
+    // Values common to all supported UARTs
+    const uint8_t portNum = 0, pinMode = 0, pinFunc = 0;
+    int8_t pinNum1 = 0, pinNum2 = 0;
     if (UARTx == LPC_UART0) {
       // Initialize UART0 pin connect
-      PinCfg.Funcnum = 1;
-      PinCfg.OpenDrain = 0;
-      PinCfg.Pinmode = 0;
-      PinCfg.Pinnum = 2;
-      PinCfg.Portnum = 0;
-      PINSEL_ConfigPin(&PinCfg);
-      PinCfg.Pinnum = 3;
-      PINSEL_ConfigPin(&PinCfg);
-    } else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
+      pinNum1 = 2, pinNum2 = 3;
+    } else if (UARTx == LPC_UART1) {
       // Initialize UART1 pin connect
-      PinCfg.Funcnum = 1;
-      PinCfg.OpenDrain = 0;
-      PinCfg.Pinmode = 0;
-      PinCfg.Pinnum = 15;
-      PinCfg.Portnum = 0;
-      PINSEL_ConfigPin(&PinCfg);
-      PinCfg.Pinnum = 16;
-      PINSEL_ConfigPin(&PinCfg);
+      pinNum1 = 15, pinNum2 = 16;
     } else if (UARTx == LPC_UART2) {
       // Initialize UART2 pin connect
-      PinCfg.Funcnum = 1;
-      PinCfg.OpenDrain = 0;
-      PinCfg.Pinmode = 0;
-      PinCfg.Pinnum = 10;
-      PinCfg.Portnum = 0;
-      PINSEL_ConfigPin(&PinCfg);
-      PinCfg.Pinnum = 11;
-      PINSEL_ConfigPin(&PinCfg);
+      pinNum1 = 10, pinNum2 = 11;
     } else if (UARTx == LPC_UART3) {
-      // Initialize UART2 pin connect
-      PinCfg.Funcnum = 1;
-      PinCfg.OpenDrain = 0;
-      PinCfg.Pinmode = 0;
-      PinCfg.Pinnum = 0;
-      PinCfg.Portnum = 0;
-      PINSEL_ConfigPin(&PinCfg);
-      PinCfg.Pinnum = 1;
-      PINSEL_ConfigPin(&PinCfg);
+      // Initialize UART3 pin connect
+      pinNum1 = 10, pinNum2 = 11;
     }
+    // TODO: LPC1788 has UART4 I think
 
-    /* Initialize UART Configuration parameter structure to default state:
-     * Baudrate = 9600bps
-     * 8 data bit
-     * 1 Stop bit
-     * None parity
-     */
-    UART_ConfigStructInit(&UARTConfigStruct);
+    Chip_IOCON_PinMux(LPC_IOCON, portNum, pinNum1, pinMode, pinFunc);
+    Chip_IOCON_PinMux(LPC_IOCON, portNum, pinNum2, pinMode, pinFunc);
 
-    // Re-configure baudrate
-    UARTConfigStruct.Baud_rate = baudrate;
-
-    // Initialize eripheral with given to corresponding parameter
-    UART_Init(UARTx, &UARTConfigStruct);
-
-    // Enable and reset the TX and RX FIFOs
-    UART_FIFOConfigStructInit(&FIFOConfig);
-    UART_FIFOConfig(UARTx, &FIFOConfig);
+    Chip_UART_Init(UARTx);
+    Chip_UART_SetBaudFDR(UARTx, baudrate);
+    Chip_UART_SetupFIFOS(UARTx, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0 | UART_FCR_RX_RS | UART_FCR_TX_RS);
+    
+    Chip_UART_ConfigData(UARTx, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
 
     // Enable UART Transmit
-    UART_TxCmd(UARTx, ENABLE);
+    Chip_UART_TXEnable(UARTx);
 
     // Configure Interrupts
-    UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
-    UART_IntConfig(UARTx, UART_INTCFG_RLS, ENABLE);
+    Chip_UART_IntEnable(UARTx, UART_IER_RBRINT | UART_IER_RLSINT);
 
     // Set proper priority and enable interrupts
     if (UARTx == LPC_UART0) {
       NVIC_SetPriority(UART0_IRQn, NVIC_EncodePriority(0, 3, 0));
       NVIC_EnableIRQ(UART0_IRQn);
     }
-    else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
+    else if (UARTx == LPC_UART1) {
       NVIC_SetPriority(UART1_IRQn, NVIC_EncodePriority(0, 3, 0));
-     NVIC_EnableIRQ(UART1_IRQn);
+      NVIC_EnableIRQ(UART1_IRQn);
     }
     else if (UARTx == LPC_UART2) {
       NVIC_SetPriority(UART2_IRQn, NVIC_EncodePriority(0, 3, 0));
@@ -155,6 +117,7 @@ public:
       NVIC_SetPriority(UART3_IRQn, NVIC_EncodePriority(0, 3, 0));
       NVIC_EnableIRQ(UART3_IRQn);
     }
+    // TODO: UART4
 
     RxQueueWritePos = RxQueueReadPos = 0;
     if constexpr (TXB_SIZE > 0) {
