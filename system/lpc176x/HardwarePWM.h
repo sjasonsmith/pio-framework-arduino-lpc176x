@@ -78,8 +78,8 @@ public:
   //static void init(const uint32_t prescale, const uint32_t period) {
   static void init(const uint32_t frequency) {
     // Power on the peripheral
-    CLKPWR_ConfigPPWR (CLKPWR_PCONP_PCPWM1, ENABLE);
-    CLKPWR_SetPCLKDiv (CLKPWR_PCLKSEL_PWM1, CLKPWR_PCLKSEL_CCLK_DIV_4);
+    Chip_Clock_EnablePeriphClock (SYSCTL_CLOCK_PWM1);
+    Chip_Clock_SetPCLKDiv (SYSCTL_PCLK_PWM1, SYSCTL_CLKDIV_4);
 
     // Make sure it is in a clean state
     LPC_PWM1->IR = 0xFF & PWM_IR_BITMASK;
@@ -97,7 +97,7 @@ public:
     LPC_PWM1->MCR = util::bit_value(1);
 
     // Set the period using channel 0 before enabling peripheral
-    LPC_PWM1->MR0 = (CLKPWR_GetPCLK(CLKPWR_PCLKSEL_PWM1) / frequency) - 1;
+    LPC_PWM1->MR0 = (Chip_Clock_GetPeripheralClockRate(SYSCTL_PCLK_PWM1) / frequency) - 1;
     LPC_PWM1->LER = util::bit_value(0); // if only latching worked
 
     // Enable PWM mode
@@ -117,7 +117,7 @@ public:
   }
 
   static inline void set_frequency(const uint32_t frequency) {
-    set_period(CLKPWR_GetPCLK(CLKPWR_PCLKSEL_PWM1) / frequency);
+    set_period(Chip_Clock_GetPeripheralClockRate(SYSCTL_PCLK_PWM1) / frequency);
   }
 
   static inline void set_period(const uint32_t period) {
@@ -132,7 +132,7 @@ public:
   }
 
   static inline void set_us(const pin_t pin, const uint32_t value) {
-    set_match(pin, (CLKPWR_GetPCLK(CLKPWR_PCLKSEL_PWM1) / 1000000) * value);
+    set_match(pin, (Chip_Clock_GetPeripheralClockRate(SYSCTL_PCLK_PWM1) / 1000000) * value);
   }
 
   // update the match register for a channel and set the latch to update on next period

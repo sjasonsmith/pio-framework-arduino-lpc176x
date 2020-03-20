@@ -146,6 +146,7 @@ extern "C" {
 #define LPC_CAN2                  ((LPC_CAN_T              *) LPC_CAN2_BASE)
 #define LPC_RITIMER               ((LPC_RITIMER_T          *) LPC_RITIMER_BASE)
 #define LPC_FMC                   ((LPC_FMC_T              *) LPC_FMC_BASE)
+#define LPC_PWM1                  ((LPC_PWM_TypeDef        *) LPC_PWM1_BASE)
 
 /* IRQ Handler Alias list */
 #define UART_IRQHandler           UART0_IRQHandler
