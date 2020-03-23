@@ -150,18 +150,19 @@ void USB_Init (void) {
     ++index;
   }
 
-  // LPC_PINCON->PINSEL1 &= ~((3<<26)|(3<<28));   /* P0.29 D+, P0.30 D- */
-  // LPC_PINCON->PINSEL1 |=  ((1<<26)|(1<<28));   /* PINSEL1 26.27, 28.29  = 01 */
+
+  LPC_IOCON->PINSEL[1] &= ~((3<<26)|(3<<28));   /* P0.29 D+, P0.30 D- */
+  LPC_IOCON->PINSEL[1] |=  ((1<<26)|(1<<28));   /* PINSEL1 26.27, 28.29  = 01 */
 
   //todo: VBUS not used by smoothieboard (though spec requires it for self powered devices), pin used for beeper
   //todo: Goodlink used for servo4?
   //LPC_PINCON->PINSEL3 &= ~((3<< 4)|(3<<28));   /* P1.18 GoodLink, P1.30 VBUS */
   //LPC_PINCON->PINSEL3 |=  ((1<< 4)|(2<<28));   /* PINSEL3 4.5 = 01, 28.29 = 10 */
 
-  // LPC_PINCON->PINSEL4 &= ~((3<<18)        );   /* P2.9 SoftConnect */
-  // LPC_PINCON->PINSEL4 |=  ((1<<18)        );   /* PINSEL4 18.19 = 01 */
+  LPC_IOCON->PINSEL[4] &= ~((3<<18)        );   /* P2.9 SoftConnect */
+  LPC_IOCON->PINSEL[4] |=  ((1<<18)        );   /* PINSEL4 18.19 = 01 */
 
-  // LPC_SC->PCONP |= (1UL<<31);                /* USB PCLK -> enable USB Per.       */
+  LPC_SYSCON->PCONP |= (1UL<<31);              /* USB PCLK -> enable USB Per.       */
 
   LPC_USB->USBClkCtrl = 0x1A;                /* Dev, PortSel, AHB clock enable */
   while ((LPC_USB->USBClkSt & 0x1A) != 0x1A);
