@@ -470,32 +470,32 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
         SystemCoreClock = (IRC_OSC *
                           ((2ULL * ((LPC_SYSCTL->PLL[0].PLLSTAT & 0x7FFF) + 1)))  /
                           (((LPC_SYSCTL->PLL[0].PLLSTAT >> 16) & 0xFF) + 1)       /
-                          ((LPC_SYSCTL->CLKOUTCFG & 0xFF)+ 1)); //?
+                          ((LPC_SYSCTL->CCLKSEL & 0xFF)+ 1)); //?
         break;
       case 1:                                /* Main oscillator => PLL0       */
         SystemCoreClock = (OSC_CLK *
                           ((2ULL * ((LPC_SYSCTL->PLL[0].PLLSTAT & 0x7FFF) + 1)))  /
                           (((LPC_SYSCTL->PLL[0].PLLSTAT >> 16) & 0xFF) + 1)       /
-                          ((LPC_SYSCTL->CLKOUTCFG & 0xFF)+ 1)); //?
+                          ((LPC_SYSCTL->CCLKSEL & 0xFF)+ 1)); //?
         break;
       case 2:                                /* RTC oscillator => PLL0        */
         SystemCoreClock = (RTC_CLK *
                           ((2ULL * ((LPC_SYSCTL->PLL[0].PLLSTAT & 0x7FFF) + 1)))  /
                           (((LPC_SYSCTL->PLL[0].PLLSTAT >> 16) & 0xFF) + 1)       /
-                          ((LPC_SYSCTL->CLKOUTCFG & 0xFF)+ 1)); //?
+                          ((LPC_SYSCTL->CCLKSEL & 0xFF)+ 1)); //?
         break;
     }
   } else {
     switch (LPC_SYSCTL->CLKSRCSEL & 0x03) {
       case 0:                                /* Int. RC oscillator => PLL0    */
       case 3:                                /* Reserved, default to Int. RC  */
-        SystemCoreClock = IRC_OSC / ((LPC_SYSCTL->CLKOUTCFG & 0xFF)+ 1); //?
+        SystemCoreClock = IRC_OSC / ((LPC_SYSCTL->CCLKSEL & 0xFF)+ 1); //?
         break;
       case 1:                                /* Main oscillator => PLL0       */
-        SystemCoreClock = OSC_CLK / ((LPC_SYSCTL->CLKOUTCFG & 0xFF)+ 1); //?
+        SystemCoreClock = OSC_CLK / ((LPC_SYSCTL->CCLKSEL & 0xFF)+ 1); //?
         break;
       case 2:                                /* RTC oscillator => PLL0        */
-        SystemCoreClock = RTC_CLK / ((LPC_SYSCTL->CLKOUTCFG & 0xFF)+ 1); //?
+        SystemCoreClock = RTC_CLK / ((LPC_SYSCTL->CCLKSEL & 0xFF)+ 1); //?
         break;
     }
   }
@@ -559,7 +559,7 @@ void SystemInit (void)
 
   LPC_SYSCTL->CLKSRCSEL = CLKSRCSEL_Val;    /* Select Clock Source for PLL0       */
 
-  LPC_SYSCTL->CLKOUTCFG   = 0x00000002;       /* Setup CPU Clock Divider            */ //?
+  LPC_SYSCTL->CCLKSEL   = 0x00000002;       /* Setup CPU Clock Divider            */ //?
 
   if(isLPC1769()) {
     LPC_SYSCTL->PLL[0].PLLCFG   = 0x0000000E;     /* configure PLL0                     */
