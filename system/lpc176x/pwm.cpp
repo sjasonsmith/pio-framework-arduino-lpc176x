@@ -33,7 +33,7 @@ void pwm_init(const uint32_t frequency) {
 bool pwm_attach_pin(const pin_t pin, const uint32_t value) {
   // Hardware PWM
   if(HardwarePWM::active(pin)) return true;   // already attached to hardware channel?
-  if(HardwarePWM::attach(pin, value)) {       // hardware capable and channel requried by pin not in use,
+  if(HardwarePWM::attach(pin, value)) {       // hardware capable and channel required by pin not in use,
     return true;                              // attach successfuly so return
   }
 
