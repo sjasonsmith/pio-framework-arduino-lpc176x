@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <chip.h>
 
 namespace LPC176x {
 
@@ -16,19 +17,6 @@ enum PinMode : uint8_t {
 };
 
 struct pin_type {
-  struct gpio_block {
-    uint32_t reg_dir;               // 0x00
-    uint32_t reg_unused[3];         // 0x04 0x08 0x0C
-    uint32_t reg_mask;              // 0x10
-    volatile uint32_t reg_control;  // 0x14
-    volatile uint32_t reg_set;      // 0x18
-    volatile uint32_t reg_clear;    // 0x1C
-  };
-
-  static constexpr uintptr_t reg_gpio_base = 0x2009C000;
-  static constexpr uintptr_t reg_function_base = 0x4002C000;
-  static constexpr uintptr_t reg_mode_base = 0x4002C040;
-  static constexpr uintptr_t reg_mode_od_base = 0x4002C068;
 
   [[gnu::always_inline]] constexpr pin_type(const uint8_t port, const uint8_t pin) :
         gpio_reg_id(port),
@@ -59,32 +47,29 @@ struct pin_type {
   /**
    * GPIO Pin
    */
-  [[gnu::always_inline]] constexpr uintptr_t gpio_address() const {
-    return reg_gpio_base + sizeof(gpio_block) * gpio_reg_id;
-  }
-  [[gnu::always_inline]] inline gpio_block& gpio_reg() const {
-    return *reinterpret_cast<gpio_block*>(gpio_address());
+  [[gnu::always_inline]] inline LPC_GPIO_T& gpio_reg() const {
+    return LPC_GPIO[gpio_reg_id];
   }
   [[gnu::always_inline]] inline void toggle() {
-    gpio_reg().reg_control ^= gpio_mask();
+    gpio_reg().PIN ^= gpio_mask();
   }
   [[gnu::always_inline]] inline void set() {
-    gpio_reg().reg_set = gpio_mask();
+    gpio_reg().SET = gpio_mask();
   }
   [[gnu::always_inline]] inline void set(const bool value) {
     value ? set() : clear();
   }
   [[gnu::always_inline, nodiscard]] inline bool get() const {
-    return gpio_reg().reg_control & gpio_mask();
+    return gpio_reg().PIN & gpio_mask();
   }
   [[gnu::always_inline]] inline void clear() {
-    gpio_reg().reg_clear = gpio_mask();
+    gpio_reg().CLR = gpio_mask();
   }
   [[gnu::always_inline]] inline void direction(const bool direction) {
-    gpio_reg().reg_dir = direction ? gpio_reg().reg_dir | gpio_mask() : gpio_reg().reg_dir & ~gpio_mask();
+    gpio_reg().DIR = direction ? gpio_reg().DIR | gpio_mask() : gpio_reg().DIR & ~gpio_mask();
   }
   [[gnu::always_inline]] inline bool direction() const {
-    return gpio_reg().reg_dir & gpio_mask();
+    return gpio_reg().DIR & gpio_mask();
   }
   [[gnu::always_inline]] inline void input() {
     direction(0);
@@ -97,19 +82,19 @@ struct pin_type {
    *  GPIO Port
    */
   [[gnu::always_inline]] inline void port_mask(const uint32_t mask) {
-    gpio_reg().reg_mask = mask;
+    gpio_reg().MASK = mask;
   }
   [[gnu::always_inline]] inline uint8_t port_mask() const {
-    return gpio_reg().reg_mask;
+    return gpio_reg().MASK;
   }
   [[gnu::always_inline]] inline void port_set(const uint32_t bitset) {
-    gpio_reg().reg_set = bitset;
+    gpio_reg().SET = bitset;
   }
   [[gnu::always_inline]] inline void port_clear(const uint32_t bitset) {
-    gpio_reg().reg_clear = bitset;
+    gpio_reg().CLR = bitset;
   }
   [[gnu::always_inline]] inline uint32_t port_get() const {
-    return gpio_reg().reg_control;
+    return gpio_reg().PIN;
   }
 
   /**
@@ -121,11 +106,8 @@ struct pin_type {
   [[gnu::always_inline]] constexpr uint32_t function_reg_id() const {
     return (gpio_reg_id * 2) + (gpio_reg_bit > 15);
   }
-  [[gnu::always_inline]] constexpr uintptr_t function_address() const {
-    return reg_function_base + (sizeof(uint32_t) * function_reg_id());
-  }
-  [[gnu::always_inline]] inline uint32_t& function_reg() const {
-    return *reinterpret_cast<uint32_t*>(function_address());
+  [[gnu::always_inline]] inline volatile uint32_t& function_reg() const {
+    return LPC_IOCON->PINSEL[function_reg_id()];
   }
   [[gnu::always_inline]] inline void function(const uint8_t func) {
     function_reg() &= ~function_mask();
@@ -152,15 +134,13 @@ struct pin_type {
   /**
    * Mode
    */
-  [[gnu::always_inline]] constexpr uintptr_t mode_address() const {
-    return reg_mode_base + (sizeof(uint32_t) * function_reg_id());
-  }
-  [[gnu::always_inline]] inline uint32_t& mode_reg() const {
-    return *reinterpret_cast<uint32_t*>(mode_address());
+  [[gnu::always_inline]] inline volatile uint32_t& mode_reg() const {
+    return LPC_IOCON->PINMODE[function_reg_id()];
   }
   [[gnu::always_inline]] inline void mode(const PinMode pinmode) {
-    mode_reg() &= ~function_mask();
-    mode_reg() |= pinmode << function_bit();
+    volatile uint32_t& reg = mode_reg();
+    reg &= ~function_mask();
+    reg |= pinmode << function_bit();
   }
   [[gnu::always_inline]] inline PinMode mode() const {
     return static_cast<PinMode>((mode_reg() & function_mask()) >> function_bit());
@@ -169,18 +149,16 @@ struct pin_type {
   /**
    * OpenDrain Mode
    */
-  [[gnu::always_inline]] constexpr uintptr_t od_mode_address() const {
-    return reg_mode_od_base + sizeof(gpio_block) * gpio_reg_id;
-  }
-  [[gnu::always_inline]] inline uint32_t& od_mode_reg() const {
-    return *reinterpret_cast<uint32_t*>(od_mode_address());
+  [[gnu::always_inline]] inline volatile uint32_t& od_mode_reg() const {
+    return LPC_IOCON->PINMODE_OD[gpio_reg_id];
   }
   [[gnu::always_inline]] inline void mode_od(const PinMode pinmode) {
-    od_mode_reg() &= ~gpio_mask();
-    od_mode_reg() |= gpio_mask();
+    volatile uint32_t& reg = od_mode_reg();
+    reg &= ~gpio_mask();
+    reg |= gpio_mask();
   }
   [[gnu::always_inline]] inline bool mode_od() const {
-    return (od_mode_reg() & gpio_mask()) >> gpio_reg_bit;
+    return (od_mode_reg() & gpio_mask()) == gpio_mask();
   }
 
   /**
