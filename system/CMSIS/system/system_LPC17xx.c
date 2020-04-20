@@ -400,7 +400,7 @@
 #define OSC_CLK     (      XTAL)        /* Main oscillator frequency          */
 #define RTC_CLK     (   32000UL)        /* RTC oscillator frequency           */
 #define IRC_OSC     ( 4000000UL)        /* Internal RC oscillator frequency   */
-const uint32_t OscRateIn = IRC_OSC;
+const uint32_t OscRateIn = OSC_CLK;
 const uint32_t RTCOscRateIn = RTC_CLK;
 
 /* F_cco0 = (2 * M * F_in) / N  */
