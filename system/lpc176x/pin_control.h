@@ -25,11 +25,10 @@ struct pin_type {
     volatile uint32_t reg_clear;    // 0x1C
   };
 
-  static constexpr uint32_t reg_gpio_base = 0x2009C000;
-  static constexpr uint32_t reg_function_base = 0x4002C000;
-  static constexpr uint32_t reg_mode_base = 0x4002C040;
-  static constexpr uint32_t reg_mode_od_base = 0x4002C068;
-  static constexpr uint32_t reg_i2c_cfg = 0x4002C07C;
+  static constexpr uintptr_t reg_gpio_base = 0x2009C000;
+  static constexpr uintptr_t reg_function_base = 0x4002C000;
+  static constexpr uintptr_t reg_mode_base = 0x4002C040;
+  static constexpr uintptr_t reg_mode_od_base = 0x4002C068;
 
   [[gnu::always_inline]] constexpr pin_type(const uint8_t port, const uint8_t pin) :
         gpio_reg_id(port),
@@ -60,7 +59,7 @@ struct pin_type {
   /**
    * GPIO Pin
    */
-  [[gnu::always_inline]] constexpr uint32_t gpio_address() const {
+  [[gnu::always_inline]] constexpr uintptr_t gpio_address() const {
     return reg_gpio_base + sizeof(gpio_block) * gpio_reg_id;
   }
   [[gnu::always_inline]] inline gpio_block& gpio_reg() const {
@@ -122,7 +121,7 @@ struct pin_type {
   [[gnu::always_inline]] constexpr uint32_t function_reg_id() const {
     return (gpio_reg_id * 2) + (gpio_reg_bit > 15);
   }
-  [[gnu::always_inline]] constexpr uint32_t function_address() const {
+  [[gnu::always_inline]] constexpr uintptr_t function_address() const {
     return reg_function_base + (sizeof(uint32_t) * function_reg_id());
   }
   [[gnu::always_inline]] inline uint32_t& function_reg() const {
@@ -153,7 +152,7 @@ struct pin_type {
   /**
    * Mode
    */
-  [[gnu::always_inline]] constexpr uint32_t mode_address() const {
+  [[gnu::always_inline]] constexpr uintptr_t mode_address() const {
     return reg_mode_base + (sizeof(uint32_t) * function_reg_id());
   }
   [[gnu::always_inline]] inline uint32_t& mode_reg() const {
@@ -170,7 +169,7 @@ struct pin_type {
   /**
    * OpenDrain Mode
    */
-  [[gnu::always_inline]] constexpr uint32_t od_mode_address() const {
+  [[gnu::always_inline]] constexpr uintptr_t od_mode_address() const {
     return reg_mode_od_base + sizeof(gpio_block) * gpio_reg_id;
   }
   [[gnu::always_inline]] inline uint32_t& od_mode_reg() const {
